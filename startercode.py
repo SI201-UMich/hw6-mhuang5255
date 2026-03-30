@@ -62,7 +62,13 @@ def create_cache(dictionary, filename):
     RETURNS:
         None
     """
-    pass
+    try:
+        with open(filename, 'w', encoding="utf-8") as output_file:
+            json_str = json.dumps(dictionary, indent=4)
+            output_file.write(json_str)
+            output_file.write("\n")
+    except:
+        print("error with creating cache.")
 
 
 def search_breed(breed_id):
