@@ -150,7 +150,36 @@ def get_longest_lifespan_breed(cache_file):
         A tuple (breed_name, max_lifespan_integer) for the winning breed, OR the
         string "No breeds found" if no breed in the cache has a life.max value.
     """
-    pass
+    # Get cache data.
+    cache_dict: dict = load_json(cache_file)
+    
+    # Set default result and loop through each dictionary in cache_dict.
+    result = "No breeds found"
+    max_lifespan: int = None
+    max_breed: str = None
+    for breed_dict in cache_dict.values():
+        cur_dict = breed_dict.get("data", None)
+        if (breed_dict.get("data", None)
+            and breed_dict["data"].get("attributes", None)):
+            attr_dict = breed_dict["data"]["attributes"]
+            cur_name = attr_dict.get("name", None)
+            if attr_dict.get("life", None):
+                cur_lifespan = attr_dict["life"].get("max", None)
+                try:
+                    cur_lifespan = int(cur_lifespan)
+                    if (max_lifespan is None 
+                        or cur_lifespan > max_lifespan
+                        or (cur_lifespan == max_lifespan
+                        and max_breed is not None and cur_name < max_breed)):
+                            max_breed = cur_name
+                            max_lifespan = cur_lifespan
+                            result = (max_breed, max_lifespan)
+                except:
+                    print("Error converting max lifespan to integer.")
+
+    return result
+                        
+
 
 
 def get_groups_above_cutoff(cutoff, cache_file):
