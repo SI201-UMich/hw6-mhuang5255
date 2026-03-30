@@ -1,11 +1,13 @@
 # SI 201 HW6 (APIs, JSON, and Caching)
-# Your name:
-# Your student id:
-# Your email:
+# Your name: Matthew Huang
+# Your student id: 17382251
+# Your email: matthhua@umich.edu
 # Who or what you worked with on this homework (including generative AI like ChatGPT):
 # If you worked with generative AI also add a statement for how you used it.
 # e.g.:
 # Asked ChatGPT for help debugging and understanding the JSON structure
+#
+# I did not use GenAI on this assignment.
 #
 # Did your use of GenAI on this assignment align with your goals and guidelines in your Gen AI contract? If not, why?
 #
@@ -36,7 +38,16 @@ def load_json(filename):
         A dictionary with the JSON data, OR an empty dictionary {} if the file
         cannot be opened or is not valid JSON.
     """
-    pass
+    
+    # Open filename and load its contents.
+    try:
+        with open(filename, encoding="utf-8") as input_file:
+            contents = json.load(input_file)
+    except:
+        # print("error when reading from file")
+        contents = {}
+
+    return contents
 
 
 def create_cache(dictionary, filename):
