@@ -198,7 +198,27 @@ def get_groups_above_cutoff(cutoff, cache_file):
     RETURNS:
         A dictionary {group_uuid: count} for groups with count >= cutoff only.
     """
-    pass
+    group_count_dict = {}
+    
+    # Read the cache_file.
+    cache_dict = load_json(cache_file)
+
+    # Loop through each breed's dictionary and find group UUID string.
+    for breed_dict in cache_dict.values():
+        if (breed_dict.get("data", None)
+            and breed_dict["data"].get("relationships", None)
+            and breed_dict["data"]["relationships"].get("group", None)
+                and breed_dict["data"]["relationships"]["group"].get("data", None)):
+            uuid = breed_dict["data"]["relationships"]["group"]["data"].get("id", None)
+            if uuid:
+                group_count_dict[uuid] = group_count_dict.get(uuid, 0) + 1
+
+    cutoff_dict = {}
+    for uuid, count in group_count_dict.items():
+        if count >= cutoff:
+            cutoff_dict[uuid] = count
+
+    return cutoff_dict
 
 
 # Extra Credit
