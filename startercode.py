@@ -243,6 +243,50 @@ def recommend_breeds_in_same_group(breed_name, cache_file):
             "No recommendations found based on '{breed_name}'."  (no other breeds in that group)
     """
 
+    # Read in cache data.
+    cache_dict = load_json(cache_file)
+
+    # Empty cache case.
+    if len(cache_dict) == 0:
+        return "No breed data found in cache."
+    
+    # Name not found case.
+    found = False
+    target_data_dict = None
+    for breed_dict in cache_dict.values():
+        if (breed_dict.get("data", None)
+            and breed_dict["data"].get("attributes", None)
+                and breed_dict["data"]["attributes"].get("name", "").lower() == breed_name.lower()):
+            target_data_dict = breed_dict["data"]
+            found = True
+            break
+
+    if not found:
+        return f"'{breed_name}' is not in the cache."
+    
+    # Group id not found.
+    if (target_data_dict.get("relationships", None)
+        and target_data_dict["relationships"].get("group", None)
+        and target_data_dict["relationships"]["group"].get("data", None)
+            and target_data_dict["relationships"]["group"]["data"].get("id", None)):
+        uuid = target_data_dict["relationships"]["group"]["data"]["id"]
+    else:
+        return f"No group information available for '{breed_name}'."
+    
+    # Look for other breeds with the same id.
+    recommendation_list = []
+    for breed_dict in cache_dict.values():
+        if ((cur_name := breed_dict.get("data", {}).get("attributes", {})
+            .get("name", breed_name)).lower() != breed_name.lower()
+            and breed_dict.get("data", {}).get("relationships", {})
+                .get("group", {}).get("data", {}).get("id", "") == uuid):
+            recommendation_list.append(cur_name)
+
+    if len(recommendation_list) == 0:
+        return f"No recommendations found based on '{breed_name}'."
+    recommendation_list.sort()
+    return recommendation_list
+
 
 class TestHomeworkDogAPI(unittest.TestCase):
     def setUp(self):
@@ -466,7 +510,6 @@ class TestHomeworkDogAPI(unittest.TestCase):
     # -------------------------
     # extra credit - uncomment tests below to evaluate extra credit function
     # -------------------------
-    """
     def test_recommend_breeds_in_same_group_empty_cache(self):
         create_cache({}, self.test_cache_file)
         self.assertEqual(
@@ -571,7 +614,6 @@ class TestHomeworkDogAPI(unittest.TestCase):
             recommend_breeds_in_same_group("breed a", self.test_cache_file),
             ["Breed B", "Breed Z"],
         )
-    """
 
 
 if __name__ == "__main__":
